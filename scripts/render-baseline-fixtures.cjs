@@ -122,17 +122,7 @@ function birthdayLineLayersBefore({ chineseFont, digitFont, text, y }) {
 function birthdayLineLayersAfter({ chineseFont, text, y }) {
   const length = textLength(text);
   const size = length > 12 ? 14 : length > 9 ? 15 : length > 6 ? 16 : 17;
-  const tokens = birthdayTokens(text);
-  const totalWidth = tokens.reduce((width, token) => width + birthdayTokenWidth(token, size), 0);
-  let cursor = `(w-${Math.round(totalWidth)})/2`;
-  const layers = [];
-
-  tokens.forEach((token) => {
-    layers.push(...birthdayGlyphLayers({ font: chineseFont, text: token, x: cursor, y, size }));
-    cursor = offsetExpression(cursor, Math.round(birthdayTokenWidth(token, size)));
-  });
-
-  return layers;
+  return birthdayGlyphLayers({ font: chineseFont, text, x: "(w-text_w)/2", y, size });
 }
 
 const HANDWRITING_JITTERS_BEFORE = [
