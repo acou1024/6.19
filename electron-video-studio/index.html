@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>国学视频工作台</title>
+    <link rel="stylesheet" href="./renderer.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="login-panel" id="loginPanel">
+        <div class="brand-row">
+          <div class="brand-icon">国</div>
+          <div>
+            <h1>国学视频工作台</h1>
+            <p>员工账号互相隔离</p>
+          </div>
+        </div>
+        <label>
+          员工账号
+          <select id="accountInput"></select>
+        </label>
+        <label>
+          密码
+          <input id="passwordInput" type="password" autocomplete="current-password" />
+        </label>
+        <button class="primary-button" id="loginButton" type="button">登录</button>
+        <p class="status-line" id="loginStatus">请先登录员工账号</p>
+      </section>
+
+      <section class="workbench hidden" id="workbench">
+        <header class="topbar">
+          <div>
+            <p>国学个性化视频工作台</p>
+            <h1>万花筒国学视频生成器</h1>
+          </div>
+          <div class="top-actions">
+            <span id="currentAccount">当前账号</span>
+            <button id="resetButton" type="button">清空填写</button>
+            <button id="logoutButton" type="button">退出</button>
+          </div>
+        </header>
+
+        <div class="notice">系统固定使用内置师傅模板视频；填写客户姓名和生辰后，成片会保存到桌面"国学视频成品"文件夹。</div>
+
+        <div class="grid">
+          <section class="panel">
+            <div class="panel-heading">
+              <h2>模板视频</h2>
+              <span>已固定</span>
+            </div>
+            <div class="template-card">
+              <strong>固定国学模板</strong>
+              <span>已内置最新剪辑视频，员工无需上传。</span>
+            </div>
+            <div class="note-card">
+              <p>模板说明</p>
+              <small>纸面姓名和生辰从视频开始显示，纸张覆盖前自动消失；系统不会添加 AI 口播。</small>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-heading">
+              <h2>国学专属信息</h2>
+              <span>每单填写</span>
+            </div>
+            <div class="form-stack">
+              <label>
+                客户姓名 / 缘主称呼
+                <input id="clientNameInput" placeholder="例如：王先生、李女士、张姐" />
+              </label>
+              <label>
+                生日 / 生辰信息
+                <input id="birthdayInput" placeholder="例如：1991年农历八月初六" />
+              </label>
+            </div>
+            <button class="submit-button" id="generateButton" type="button">加入后台生成</button>
+          </section>
+        </div>
+
+        <section class="log-panel">
+          <div class="panel-heading">
+            <h2>生成记录</h2>
+            <span id="statusText">等待生成</span>
+          </div>
+          <div id="logList" class="log-list"></div>
+        </section>
+      </section>
+      <!-- 生成失败汇总弹窗 -->
+      <div id="failedModal" class="modal-overlay hidden">
+        <div class="modal-box">
+          <div class="modal-head">
+            <h2>⚠️ 生成失败提醒</h2>
+            <button id="failedModalClose" class="modal-close" type="button">&times;</button>
+          </div>
+          <div id="failedModalBody" class="modal-body"></div>
+          <div class="modal-foot">
+            <button id="failedModalConfirm" class="primary-button" type="button">知道了</button>
+          </div>
+        </div>
+      </div>
+    </main>
+    <script src="./renderer.js"></script>
+  </body>
+</html>

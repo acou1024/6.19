@@ -1,0 +1,20 @@
+# Electron 运行时 / 构建产物
+win-unpacked/
+
+# 预览截图 / 测试杂项
+font-previews/
+
+# 开发文档
+修复计划*.md
+
+# 依赖
+node_modules/
+
+# 系统文件
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
