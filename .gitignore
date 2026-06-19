@@ -3,6 +3,7 @@ win-unpacked/
 
 # 预览截图 / 测试杂项
 font-previews/
+tmp/
 
 # 开发文档
 修复计划*.md

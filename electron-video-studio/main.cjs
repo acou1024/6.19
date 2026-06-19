@@ -34,10 +34,6 @@ function birthdayChineseFontPath() {
   return fontPath();
 }
 
-function birthdayDigitFontPath() {
-  return path.join(appRoot(), "electron", "fonts", "lxgw-wenkai.ttf");
-}
-
 function cleanText(value, fallback = "") {
   return String(value || fallback).replace(/\s+/g, " ").trim().slice(0, 90);
 }
@@ -75,13 +71,6 @@ function drawBirthdayChineseFontOption() {
   return `fontfile=${escapeFilterPath(birthdayChineseFontPath())}`;
 }
 
-function drawBirthdayDigitFontOption() {
-  if (process.platform === "win32") {
-    return "fontfile=electron/fonts/lxgw-wenkai.ttf";
-  }
-  return `fontfile=${escapeFilterPath(birthdayDigitFontPath())}`;
-}
-
 function textLength(value) {
   return Array.from(String(value || "")).length;
 }
@@ -101,14 +90,14 @@ function paperTextStyle(input) {
 }
 
 const HANDWRITING_JITTERS = [
-  { dx: -1, dy: 0, scale: 1.03, advance: 0.95 },
-  { dx: 1, dy: 0, scale: 0.98, advance: 0.96 },
-  { dx: 0, dy: 0, scale: 1.01, advance: 0.98 },
-  { dx: -1, dy: 0, scale: 0.99, advance: 0.96 },
-  { dx: 1, dy: 0, scale: 1.02, advance: 0.95 },
-  { dx: 0, dy: 0, scale: 1.00, advance: 0.97 },
-  { dx: 1, dy: 0, scale: 1.01, advance: 0.96 },
-  { dx: -1, dy: 0, scale: 0.99, advance: 0.97 }
+  { dx: -1, dy: 0, advance: 0.95 },
+  { dx: 1, dy: 1, advance: 0.96 },
+  { dx: 0, dy: -1, advance: 0.98 },
+  { dx: -1, dy: 0, advance: 0.96 },
+  { dx: 1, dy: -1, advance: 0.95 },
+  { dx: 0, dy: 1, advance: 0.97 },
+  { dx: 1, dy: 0, advance: 0.96 },
+  { dx: -1, dy: 0, advance: 0.97 }
 ];
 
 function glyphWidth(char, size) {
@@ -195,7 +184,7 @@ function birthdayGlyphLayers({ font, text, x, y, size }) {
   ];
 }
 
-function birthdayLineLayers({ chineseFont, digitFont, text, y }) {
+function birthdayLineLayers({ chineseFont, text, y }) {
   const length = textLength(text);
   const size = length > 12 ? 14 : length > 9 ? 15 : length > 6 ? 16 : 17;
   const tokens = birthdayTokens(text);
@@ -204,8 +193,7 @@ function birthdayLineLayers({ chineseFont, digitFont, text, y }) {
   const layers = [];
 
   tokens.forEach((token) => {
-    const font = /^[0-9]+$/.test(token) ? digitFont : chineseFont;
-    layers.push(...birthdayGlyphLayers({ font, text: token, x: cursor, y, size }));
+    layers.push(...birthdayGlyphLayers({ font: chineseFont, text: token, x: cursor, y, size }));
     cursor = offsetExpression(cursor, Math.round(birthdayTokenWidth(token, size)));
   });
 
@@ -217,9 +205,10 @@ function handwritingTextLayers({ font, text, x, y, size, maxWidth, seed }) {
   const baseWidth = chars.reduce((width, char, index) => {
     if (char.trim() === "") return width + size * 0.35;
     const jitter = HANDWRITING_JITTERS[(index + seed) % HANDWRITING_JITTERS.length];
-    return width + glyphWidth(char, size * jitter.scale) * jitter.advance;
+    return width + glyphWidth(char, size) * jitter.advance;
   }, 0);
   const widthScale = baseWidth > maxWidth ? maxWidth / baseWidth : 1;
+  const charSize = Math.max(14, Math.round(size * widthScale));
   let cursor = x;
   const layers = [];
 
@@ -230,7 +219,6 @@ function handwritingTextLayers({ font, text, x, y, size, maxWidth, seed }) {
     }
 
     const jitter = HANDWRITING_JITTERS[(index + seed) % HANDWRITING_JITTERS.length];
-    const charSize = Math.max(14, Math.round(size * jitter.scale * widthScale));
     const charX = Math.round(cursor + jitter.dx * widthScale);
     const charY = Math.round(y + jitter.dy * widthScale);
     layers.push(...markerGlyphLayers({ font, char, x: charX, y: charY, size: charSize }));
@@ -321,8 +309,7 @@ async function assertRequiredFiles() {
     { label: "ffmpeg.exe", filePath: ffmpegPath() },
     { label: "模板视频", filePath: templatePath() },
     { label: "姓名字体文件", filePath: fontPath() },
-    { label: "生辰中文字体文件", filePath: birthdayChineseFontPath() },
-    { label: "生辰数字字体文件", filePath: birthdayDigitFontPath() }
+    { label: "生辰字体文件", filePath: birthdayChineseFontPath() }
   ];
 
   for (const item of requiredFiles) {
@@ -362,7 +349,6 @@ function parseDuration(stderr) {
 function buildVideoFilter(input) {
   const font = drawTextFontOption();
   const birthdayChineseFont = drawBirthdayChineseFontOption();
-  const birthdayDigitFont = drawBirthdayDigitFontOption();
   const nameLength = textLength(input.clientName);
   const nameSize = nameLength > 4 ? 24 : nameLength > 3 ? 26 : 27;
   const enable = `lt(t,${PAPER_TEXT_END_SECONDS})`;
@@ -380,7 +366,6 @@ function buildVideoFilter(input) {
     }),
     ...birthdayLineLayers({
       chineseFont: birthdayChineseFont,
-      digitFont: birthdayDigitFont,
       text: input.birthday,
       y: 42
     }),
